@@ -17,12 +17,19 @@ Luraph VM source (329,943 bytes). The payload file is the corresponding
 serialized VM program (2,260,759 bytes); it is intentionally written to `/tmp`
 in the command above because it is binary intermediate data, not Lua source.
 
-## Important limitation
+## Current recovery status
 
-Luraph virtualizes the author-written program. Therefore the decompressed VM
-source is not the original author-written Lua source: the original semantics
-are encoded in the serialized VM payload and are interpreted at runtime. A
-source-level recovery would require a second devirtualization pass (recovering
-the VM opcode map, constants, control flow, and Roblox/Luau host objects). The
-repository now contains the complete decoded VM layer and a deterministic
-extractor rather than falsely presenting the VM scaffold as the original code.
+`Resonanse_recovered.lua` is an additional register-level listing of the
+serialized VM program. It contains all 355 recovered prototype frames and
+32,512 decoded instruction rows, preserves the raw operands, resolves nested
+prototype references, and corrects the VM's one-based jump targets. It is useful
+for auditing and continuing the devirtualization, but it is **not** the original
+author-written Lua source and is not intended to be executed as Lua.
+
+The remaining step is source-level devirtualization: prove the dispatcher
+semantics for every reachable virtual opcode, reconstruct the reachable control
+flow and expressions, and recover names/closures from the VM register state.
+Until that pass is complete, the original Lua source has not been recovered.
+
+This distinction is deliberate: the decompressed VM scaffold and the register
+listing must not be presented as the original script.
